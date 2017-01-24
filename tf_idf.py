@@ -12,6 +12,8 @@ from random import shuffle
 from sklearn.metrics import classification_report
 from sklearn.decomposition import PCA
 
+PCA_Applied = False
+PCA_nComponents = 50
 stoplist = set('for a of the and to in'.split())
 
 class Texts(object):
@@ -63,8 +65,9 @@ corpus = [dictionary.doc2bow(text) for text in corpus]
 model = models.TfidfModel(corpus)
 corpus = [text for text in model[corpus]]
 text_matrix = gensim.matutils.corpus2dense(corpus,num_terms = len(dictionary.token2id)).T
-# pca = PCA(n_components=50)
-# text_matrix = pca.fit_transform(text_matrix)
+if PCA_Applied:
+    pca = PCA(n_components=PCA_nComponents)
+    text_matrix = pca.fit_transform(text_matrix)
 
 
 classifier = LogisticRegression()
