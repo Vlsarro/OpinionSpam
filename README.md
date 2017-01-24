@@ -5,8 +5,9 @@ Research code for opinion spam detection
 - 400 truthful negative reviews from Expedia, Hotels.com, Orbitz, Priceline,TripAdvisor and Yelp (described in [2])
 
 ## Method:
-- opinion2vec.py : using word-embedding method to detect opinion spam
-
+- word_embedding.py : using word-embedding method to detect opinion spam
+- tf_idf.py : using TF-IDF method to detect opinion spam (PCA deduction is optional)
+- unigram.py : using unigram method to detect opinion spam (PCA deduction is optional)
 ##References
 [1] M. Ott, Y. Choi, C. Cardie, and J.T. Hancock. 2011. Finding Deceptive
 Opinion Spam by Any Stretch of the Imagination. In Proceedings of the 49th

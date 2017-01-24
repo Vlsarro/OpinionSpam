@@ -1,7 +1,7 @@
 # gensim modules
 import gensim
 from gensim import utils
-from gensim import corpora,models
+from gensim import corpora
 # numpy
 import numpy
 # classifier
@@ -64,8 +64,6 @@ for home, dirs, files in walk(testPath + 'negative'):
 corpus,tagNames = Texts(sources).to_vector()
 dictionary = corpora.Dictionary(corpus)
 corpus = [dictionary.doc2bow(text) for text in corpus]
-model = models.TfidfModel(corpus)
-corpus = [text for text in model[corpus]]
 text_matrix = gensim.matutils.corpus2dense(corpus,num_terms = len(dictionary.token2id)).T
 # pca = PCA(n_components=50)
 # text_matrix = pca.fit_transform(text_matrix)
