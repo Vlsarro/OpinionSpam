@@ -1,8 +1,8 @@
 # OpinionSpam
 Research code for opinion spam detection
 ## dataset:
-    * 400 truthful positive reviews from TripAdvisor (described in [1])
-    * 400 truthful negative reviews from Expedia, Hotels.com, Orbitz, Priceline,TripAdvisor and Yelp (described in [2])
+- 400 truthful positive reviews from TripAdvisor (described in [1])
+- 400 truthful negative reviews from Expedia, Hotels.com, Orbitz, Priceline,TripAdvisor and Yelp (described in [2])
 
 References
 ----------
