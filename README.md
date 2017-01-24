@@ -9,6 +9,9 @@ Research code for opinion spam detection
 - tf_idf.py : using TF-IDF method to detect opinion spam (PCA deduction is optional)
 - unigram.py : using unigram method to detect opinion spam (PCA deduction is optional)
 
+## Behavior-based Approaches:
+To be implemented...
+
 ##References
 [1] M. Ott, Y. Choi, C. Cardie, and J.T. Hancock. 2011. Finding Deceptive
 Opinion Spam by Any Stretch of the Imagination. In Proceedings of the 49th
