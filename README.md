@@ -4,8 +4,10 @@ Research code for opinion spam detection
 * 400 truthful positive reviews from TripAdvisor (described in [1])
 * 400 truthful negative reviews from Expedia, Hotels.com, Orbitz, Priceline,
   TripAdvisor and Yelp (described in [2])
+</br>
 References
 ----------
+</br>
 [1] M. Ott, Y. Choi, C. Cardie, and J.T. Hancock. 2011. Finding Deceptive
 Opinion Spam by Any Stretch of the Imagination. In Proceedings of the 49th
 Annual Meeting of the Association for Computational Linguistics: Human Language
