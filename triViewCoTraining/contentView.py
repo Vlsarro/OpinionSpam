@@ -79,43 +79,44 @@ class Word_Eembedding_Method(object):
             self.trainingSet.append(self.model.docvecs[user])
             self.trainingLabel.append(self.labelDict[user])
 
-        for i, user in enumerate(self.testDict):
-            self.testSet.append(self.model.docvecs[user])
-            self.testLabel.append(self.labelDict[user])
 
-        return self.trainingSet, self.trainingLabel, self.testSet, self.testLabel
+
 
     def fitAndPredict(self):
-        classifier = LogisticRegression()
-        classifier.fit(self.trainingSet, self.trainingLabel)
-        pred_labels = classifier.predict(self.testSet)
-        print 'Logistic:'
-        print classification_report(self.testLabel, pred_labels)
+        # classifier = LogisticRegression()
+        # classifier.fit(self.trainingSet, self.trainingLabel)
+        # pred_labels = classifier.predict(self.testSet)
+        # print 'Logistic:'
+        # print classification_report(self.testLabel, pred_labels)
 
         classifier = SVC()
         classifier.fit(self.trainingSet, self.trainingLabel)
-        pred_labels = classifier.predict(self.testSet)
-        print 'SVM:'
-        print classification_report(self.testLabel, pred_labels)
+        pred_labels = {}
 
-        classifier = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0,
-                                                max_depth=1, random_state=0)
-        classifier.fit(self.trainingSet, self.trainingLabel)
-        pred_labels = classifier.predict(self.testSet)
-        print 'GBDT:'
-        print classification_report(self.testLabel, pred_labels)
+        for user in self.testDict:
+            pred_labels[user] = classifier.predict([self.model.docvecs[user]])
+        # print 'SVM:'
+        # print classification_report(self.testLabel, pred_labels)
+        return pred_labels
 
-        clf = AdaBoostClassifier(n_estimators=100)
-        classifier.fit(self.trainingSet, self.trainingLabel)
-        pred_labels = classifier.predict(self.testSet)
-        print 'AdaBoost:'
-        print classification_report(self.testLabel, pred_labels)
-
-        clf = RandomForestClassifier(n_estimators=10)
-        classifier.fit(self.trainingSet, self.trainingLabel)
-        pred_labels = classifier.predict(self.testSet)
-        print 'Random Forest:'
-        print classification_report(self.testLabel, pred_labels)
+        # classifier = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0,
+        #                                         max_depth=1, random_state=0)
+        # classifier.fit(self.trainingSet, self.trainingLabel)
+        # pred_labels = classifier.predict(self.testSet)
+        # print 'GBDT:'
+        # print classification_report(self.testLabel, pred_labels)
+        #
+        # clf = AdaBoostClassifier(n_estimators=100)
+        # classifier.fit(self.trainingSet, self.trainingLabel)
+        # pred_labels = classifier.predict(self.testSet)
+        # print 'AdaBoost:'
+        # print classification_report(self.testLabel, pred_labels)
+        #
+        # clf = RandomForestClassifier(n_estimators=10)
+        # classifier.fit(self.trainingSet, self.trainingLabel)
+        # pred_labels = classifier.predict(self.testSet)
+        # print 'Random Forest:'
+        # print classification_report(self.testLabel, pred_labels)
 
 
 
