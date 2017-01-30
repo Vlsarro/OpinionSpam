@@ -28,8 +28,9 @@ while len(balanced_positive)<len(negative):
 count = len(positive)*2
 trainSet = []
 testSet = []
+trainingSize = 0.01
 while len(positive)!=0 and len(negative)!=0:
-    if random.random()<0.8:
+    if random.random()<trainingSize:
         if random.random()<0.5:
             trainSet.append(positive[0])
             del positive[0]
@@ -55,15 +56,16 @@ testLabel_f = [int(reviewers[item[1]]) for item in testSet]
 
 
 we = Word_Eembedding_Method(trainingDict,testDict,reviewers)
-we.trainingNet(10,200)
+we.trainingNet(10,50)
 we.prepareData()
 label1 = we.fitAndPredict()
 
 
 ########################################################################
 #prepare data for DegreeSAD
-from loadRating import load
+from loadRating import load,loadBrand
 userProfile,itemProfile = load('./amazon/filter_reviews.txt',0,1,3,'\t')
+brandProfile = loadBrand('./amazon/product_brand.txt')
 # normalData = {}
 # dirtyData = {}
 #
@@ -99,13 +101,13 @@ for user in testDict:
 #         normalData[key] = ra.userProfile[key]
 # print 'data picked out...'
 
-from DegreeSAD import DegreeSAD
-de = DegreeSAD(trainingData,testData,itemProfile,label)
+from behaviorView import BehaviorView
+de = BehaviorView(trainingData,testData,itemProfile,brandProfile,label)
 de.prepareData()
 label2 = de.fitAndPredict()
 
 
-print 'ratingReview Approach'
+print 'ratingView Approach'
 from ratingView import RatingView
 de = RatingView(trainingData,testData,itemProfile,label)
 de.prepareData()
@@ -133,9 +135,9 @@ from sklearn.metrics import classification_report
 
 print 'Word-Embedding Approach'
 print classification_report(groundTruth,l1)
-print 'DegreeSAD Approach'
+print 'Behavioral Approach'
 print classification_report(groundTruth,l2)
-print 'ratingReview Approach'
+print 'RatingReview Approach'
 print classification_report(groundTruth,l3)
 print 'triViews Approach'
 print classification_report(groundTruth,predict)
