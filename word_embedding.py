@@ -104,11 +104,9 @@ for tag in tagNames:
 classifier = LogisticRegression()
 classifier.fit(train_arrays, train_labels)
 pred_labels = classifier.predict(test_arrays)
-print 'Logistic:'
-print classification_report(test_labels,pred_labels)
+print(f'Logistic: {classification_report(test_labels,pred_labels)}')
 
 classifier = SVC()
 classifier.fit(train_arrays, train_labels)
 pred_labels = classifier.predict(test_arrays)
-print 'SVM:'
-print classification_report(test_labels,pred_labels)
+print(f'SVM: {classification_report(test_labels,pred_labels)}')

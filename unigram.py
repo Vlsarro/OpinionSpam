@@ -71,11 +71,9 @@ if PCA_Applied:
 classifier = LogisticRegression()
 classifier.fit(text_matrix[:640], labels[:640])
 pred_labels = classifier.predict(text_matrix[640:])
-print 'Logistic:'
-print classification_report(labels[640:],pred_labels)
+print(f'Logistic: {classification_report(labels[640:],pred_labels)}')
 
 classifier = SVC()
 classifier.fit(text_matrix[:640], labels[:640])
 pred_labels = classifier.predict(text_matrix[640:])
-print 'SVM:'
-print classification_report(labels[640:],pred_labels)
+print(f'SVM: {classification_report(labels[640:],pred_labels)}')
