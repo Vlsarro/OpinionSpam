@@ -27,14 +27,14 @@ class LabeledLineSentence(object):
 
     def __iter__(self):
         for source, prefix in self.sources.items():
-            with utils.smart_open(source) as fin:
+            with utils.open(source) as fin:
                 for item_no, line in enumerate(fin):
                     yield LabeledSentence(utils.to_unicode(line).split(), [prefix])
 
     def to_array(self):
         self.sentences = []
         for source, prefix in self.sources.items():
-            with utils.smart_open(source) as fin:
+            with utils.open(source) as fin:
                 for item_no, line in enumerate(fin):
                     self.sentences.append(LabeledSentence(utils.to_unicode(line).split(), [prefix]))
         return self.sentences

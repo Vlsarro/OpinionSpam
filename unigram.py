@@ -24,7 +24,7 @@ class Texts(object):
     def to_vector(self):
         self.sentences = []
         for source in self.sources:
-            with utils.smart_open(source) as fin:
+            with utils.open(source) as fin:
                 for item_no, line in enumerate(fin):
                     words = utils.to_unicode(line).split()
                     words = [word for word in words if word not in stoplist]
