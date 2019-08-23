@@ -1,81 +1,112 @@
-# gensim modules
-import gensim
-from gensim import utils
-from gensim import corpora,models
-# numpy
-import numpy
-# classifier
+import os
+import logging
+
+from nltk.corpus import stopwords
+
+from gensim import corpora, utils
+from gensim.matutils import corpus2dense
+from gensim.models import TfidfModel
+
 from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC
-from os import walk
-from random import shuffle
 from sklearn.metrics import classification_report
 from sklearn.decomposition import PCA
 
-PCA_Applied = False
-PCA_nComponents = 50
-stoplist = set('for a of the and to in'.split())
 
-class Texts(object):
+STOP_LIST = set(stopwords.words('english'))
+logging.basicConfig(level=logging.DEBUG)
+
+
+class ClassifierNotTrainedException(Exception):
+
+    DEFAULT_MESSAGE = 'Classifier is not trained, run <train> method before proceeding further'
+
+    def __init__(self, msg=None):
+        super(ClassifierNotTrainedException, self).__init__(msg or self.DEFAULT_MESSAGE)
+
+
+class Texts:
+
     def __init__(self, sources):
+        super(Texts, self).__init__()
         self.sources = sources
-
+        self.sentences = []
 
     def to_vector(self):
         self.sentences = []
         for source in self.sources:
-            with utils.smart_open(source) as fin:
+            with utils.open(source) as fin:
                 for item_no, line in enumerate(fin):
                     words = utils.to_unicode(line).split()
-                    words = [word for word in words if word not in stoplist]
+                    words = [word for word in words if word not in STOP_LIST]
                     self.sentences.append(words)
         return self.sentences
 
 
-#create source
-sources = []
-labels = []
+class TfIdfClassifierWrapper:
 
-trainingPath = './dataset/trainingset/'
-for home, dirs, files in walk(trainingPath+'positive'):
-    for filename in files:
-        sources.append(home+'/'+filename)
-        labels.append(1)
+    base_classifier_class = LogisticRegression
 
-for home, dirs, files in walk(trainingPath+'negative'):
-    for filename in files:
-        sources.append(home + '/' + filename)
-        labels.append(0)
+    def __init__(self, training_path=None, test_path=None, apply_pca=False, pca_n_components=50):
+        super(TfIdfClassifierWrapper, self).__init__()
 
-testPath = './dataset/testset/'
-for home, dirs, files in walk(testPath + 'positive'):
-    for filename in files:
-        sources.append(home + '/' + filename)
-        labels.append(1)
+        self.training_path = training_path or './dataset/trainingset/'
+        self.test_path = test_path or './dataset/testset/'
 
-for home, dirs, files in walk(testPath + 'negative'):
-    for filename in files:
-        sources.append(home + '/' + filename)
-        labels.append(0)
+        self.sources = []
+        self.labels = []
+
+        self.classifier = self.base_classifier_class(solver='liblinear')
+        self.pca = PCA(n_components=pca_n_components) if apply_pca else None
+        self.is_trained = False
+
+        self.logger = logging.getLogger('tf_idf')
+
+        self.training_text_matrix = None
+        self.training_sources_length = None
+
+    def process_dataset(self, path, is_positive):
+        path_suffix = 'positive' if is_positive else 'negative'
+        for home, dirs, files in os.walk(path + path_suffix):
+            for filename in files:
+                self.sources.append(home + '/' + filename)
+                self.labels.append(int(is_positive))
+
+    def train(self):
+        self.process_dataset(self.training_path, True)
+        self.process_dataset(self.training_path, False)
+
+        self.training_sources_length = len(self.sources)
+        self.logger.debug(f'After train set processing: sources len {len(self.sources)}, labels len {len(self.labels)}')
+
+        self.process_dataset(self.test_path, True)
+        self.process_dataset(self.test_path, False)
+
+        self.logger.debug(f'After full processing: sources len {len(self.sources)}, labels len {len(self.labels)}')
+
+        corpus = Texts(self.sources).to_vector()
+        dictionary = corpora.Dictionary(corpus)
+        corpus = [dictionary.doc2bow(text) for text in corpus]
+        model = TfidfModel(corpus)
+        corpus = [text for text in model[corpus]]
+        self.training_text_matrix = corpus2dense(corpus, num_terms=len(dictionary.token2id)).T
+
+        if self.pca:
+            self.training_text_matrix = self.pca.fit_transform(self.training_text_matrix)
+
+        self.classifier.fit(self.training_text_matrix[:self.training_sources_length],
+                            self.labels[:self.training_sources_length])
+
+        self.is_trained = True
+
+    def write_classification_report(self):
+        if self.is_trained:
+            pred_labels = self.classifier.predict(self.training_text_matrix[self.training_sources_length:])
+            print(f'Logistic: {classification_report(self.labels[self.training_sources_length:], pred_labels)}')
+        else:
+            raise ClassifierNotTrainedException()
 
 
-corpus = Texts(sources).to_vector()
-dictionary = corpora.Dictionary(corpus)
-corpus = [dictionary.doc2bow(text) for text in corpus]
-model = models.TfidfModel(corpus)
-corpus = [text for text in model[corpus]]
-text_matrix = gensim.matutils.corpus2dense(corpus,num_terms = len(dictionary.token2id)).T
-if PCA_Applied:
-    pca = PCA(n_components=PCA_nComponents)
-    text_matrix = pca.fit_transform(text_matrix)
-
-
-classifier = LogisticRegression()
-classifier.fit(text_matrix[:640], labels[:640])
-pred_labels = classifier.predict(text_matrix[640:])
-print(f'Logistic: {classification_report(labels[640:],pred_labels)}')
-
-classifier = SVC()
-classifier.fit(text_matrix[:640], labels[:640])
-pred_labels = classifier.predict(text_matrix[640:])
-print(f'SVM: {classification_report(labels[640:],pred_labels)}')
+if __name__ == '__main__':
+    tf_idf_classifier = TfIdfClassifierWrapper(apply_pca=True)
+    tf_idf_classifier.train()
+    tf_idf_classifier.write_classification_report()
